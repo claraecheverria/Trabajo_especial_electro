@@ -1,20 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from sympy import symbols, Eq, solve
 
-def voltaje():
-
-    # Tamaño de la grilla
-    N = 100
+def voltaje(N):
 
     # Crear una matriz para representar la grilla
     grilla = np.zeros((N, N))
 
     # Radio del círculo
-    radio = 25
+    radio = N/4
 
     #tolerancia para dibujar cfas
-    tol = 0.5
+    tol = N/200
 
     # Establecer condiciones iniciales
     for i in range(N):
@@ -49,18 +47,16 @@ def voltaje():
     return grilla
 
 
-def campo_electrico_x(voltaje):
-    # Tamaño de la grilla
-    N = 100
+def campo_electrico_x(voltaje, N):
 
     # Crear una matriz para representar la grilla
     grilla = np.zeros((N, N))
 
     # Radio del círculo
-    radio = 25
+    radio = N/4
 
     #tolerancia para dibujar cfas
-    tol = 0.5
+    tol = N/200
 
     '''# Establecer condiciones iniciales
     for i in range(N):
@@ -91,18 +87,16 @@ def campo_electrico_x(voltaje):
         grilla = np.copy(new_grilla)
         return grilla
     
-def campo_electrico_y(voltaje):
-    # Tamaño de la grilla
-    N = 100
+def campo_electrico_y(voltaje, N):
 
     # Crear una matriz para representar la grilla
     grilla = np.zeros((N, N))
 
     # Radio del círculo
-    radio = 25
+    radio = N/4
 
     #tolerancia para dibujar cfas
-    tol = 0.5
+    tol = N/200
 
     '''# Establecer condiciones iniciales
     for i in range(N):
@@ -133,8 +127,7 @@ def campo_electrico_y(voltaje):
         grilla = np.copy(new_grilla)
         return grilla
     
-
-def print_campo_elec(v):
+def print_campo_elec(v, N):
     # Graficar la grilla
     fig, ax = plt.subplots()
     im = ax.imshow(v, cmap='hot', origin='lower')
@@ -143,27 +136,25 @@ def print_campo_elec(v):
     ax.set_xlabel('Aumento de h según x')
     ax.set_ylabel('Aumento de h según y')
     plt.show()
-    x = campo_electrico_x(v)
-    y = campo_electrico_y(v)
+    x = campo_electrico_x(v,N)
+    y = campo_electrico_y(v,N)
 
-    campo_elec = np.zeros((100, 100))
-    for i in range(0, 100):
-        for j in range(0, 100):
+    campo_elec = np.zeros((N, N))
+    for i in range(0, N):
+        for j in range(0, N):
             campo_elec[i,j]= np.sqrt((x[i,j])**2+(y[i,j])**2)  
 
     # Graficar la grilla
     fig, ax = plt.subplots()
     im = ax.imshow(campo_elec, cmap='hot', origin='lower')
     plt.colorbar(im)
-    plt.title('Método de Relajación - Campo eléctrico ')
+    plt.title('Método de Relajación - Módulo Campo eléctrico ')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     plt.show()
     return campo_elec
 
-
-
-def lineas_campo_elec(e):
+def lineas_campo_elec(e,N):
 
 
     # Crear una matriz de numpy con el módulo del campo eléctrico
@@ -177,10 +168,10 @@ def lineas_campo_elec(e):
     # Calcular los componentes x e y del campo eléctrico a partir del módulo
     Ex = campo_electrico * np.cos(np.pi/4)  # Componente x del campo eléctrico
     Ey = campo_electrico * np.sin(np.pi/4)  # Componente y del campo eléctrico
-    v= voltaje()
-    Ex = campo_electrico_x(v)
+    v= voltaje(N)
+    Ex = campo_electrico_x(v,N)
     Ex = -1*Ex
-    Ey = campo_electrico_y(v)
+    Ey = campo_electrico_y(v,N)
     Ey = -1*Ey #es porque al graficar las líneas la función por defecto va de - a +
 
     # Graficar las líneas de campo
@@ -214,24 +205,24 @@ def calcular_angulo_recta(equacion):
     
     return angulo_radianes
 
-def campo_elec_radial(Ex, Ey):
-    pos_x = np.zeros((100, 100))
-    pos_y = np.zeros((100, 100))
+def campo_elec_radial(Ex, Ey, N):
+    pos_x = np.zeros((N, N))
+    pos_y = np.zeros((N, N))
     
-    Er = np.zeros((100, 100))
+    Er = np.zeros((N, N))
 
-    for i in range(0, 100):
-        for j in range(0, 100):
-            x = i - 100 // 2
-            y = j - 100 // 2
+    for i in range(0, N):
+        for j in range(0, N):
+            x = i - N // 2
+            y = j - N // 2
             pos_x[i,j]= x
             pos_y[i,j]= y
             if(x ==0 and y==0):
                 print("Posicion:")
                 print(i,j)
 
-    for i in range(0, 100):
-        for j in range(0, 100):
+    for i in range(0, N):
+        for j in range(0, N):
             if(pos_x[i,j]== 0):
                 Er[i,j] = (Ey[i,j])          #no puedo divir entre cero, si es cero tiene solo componente en y
             else:            
@@ -241,18 +232,18 @@ def campo_elec_radial(Ex, Ey):
     #sigma = epsilon cero* Er
     return Er
 
-def carga(sigma):
+def carga(sigma,N):
     #tolerancia para dibujar cfas
     tol = 0.5
     suma = 0
     contador = 0
     # Radio del círculo
-    radio = 25
+    radio = N/4
     # Establecer condiciones iniciales
-    for i in range(100):
-        for j in range(100):
-            x = i - 100 // 2
-            y = j - 100 // 2
+    for i in range(N):
+        for j in range(N):
+            x = i - N // 2
+            y = j - N // 2
             if (x**2 + y**2) <= (radio+tol)**2 and (x**2 + y**2) >= (radio-tol)**2:
                 if x >= 0 and y >= 0:
                     suma = suma +sigma[i,j]
@@ -270,16 +261,34 @@ def capacitancia(carga):
     print(cap)
     return cap
 
-                     
-v = voltaje()
-Ex = campo_electrico_x(v)
-Ey = campo_electrico_y(v)
-e =print_campo_elec(v)
+N=250
+v = voltaje(N)
+Ex = campo_electrico_x(v,N)
+Ey = campo_electrico_y(v,N)
+e =print_campo_elec(v,N)
 # lineas_campo_elec(e)
-sigma = campo_elec_radial(Ex, Ey)
-capacitancia(carga(sigma))
+sigma = campo_elec_radial(Ex, Ey, N)
+capacitancia(carga(sigma,N))
 
-    
+def richardson(n1,n2,n3,C1,C2,C3):
+    # Define the variables
+    A, B, C = symbols('A B C')
+
+    # Define the equations
+    equation1 = Eq(A + B/n1 + C/(n1**2), C1)
+    equation2 = Eq(A + B/n2 + C/(n2**2), C2)
+    equation3 = Eq(A + B/n3 + C/(n3**2), C3)
+
+    # Solve the system of equations
+    solution = solve((equation1, equation2, equation3), (A, B, C))
+
+    # Print the solution
+    print("Solution:")
+    print("A =", solution[A])
+    print("B =", solution[B])
+    print("C =", solution[C])
+
+richardson(100,80,60,4.8e-12,3.2e-12,2.7e-12)
 
 
 
